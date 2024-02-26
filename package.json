@@ -18,7 +18,7 @@
     "url": "https://github.com/mortezakarimi/react-hooks.git"
   },
   "scripts": {
-    "lerna:publish": "lerna publish from-git --dist-tag latest --yes",
+    "lerna:publish": "lerna publish",
     "lerna:version": "lerna version --conventional-commits",
     "prerelease": "lerna run build && lerna run lint",
     "release": "npm run lerna:version",
