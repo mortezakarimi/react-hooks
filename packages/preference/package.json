@@ -1,6 +1,6 @@
 {
   "name": "@mortezakarimi/preference-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React Hooks for Capacitor Preference plugin",
   "keywords": [
     "react",
