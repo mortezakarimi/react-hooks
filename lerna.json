@@ -7,14 +7,11 @@
       "ci": true
     },
     "version": {
-      "allowBranch": "main",
+      "allowBranch": "v5",
       "conventionalCommits": true,
       "createRelease": "github",
       "message": "chore(release): Release",
       "tagVersionPrefix": ""
-    },
-    "publish": {
-      "verifyAccess": false
     }
   }
 }
