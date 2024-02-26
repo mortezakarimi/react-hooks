@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
+    "declaration": true,
+    "experimentalDecorators": true,
+    "noEmitHelpers": false,
+    "importHelpers": false,
+    "moduleResolution": "node",
+    "lib": ["dom", "es2017"],
+    "pretty": true,
+    "module": "es2015",
+    "noImplicitAny": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "sourceMap": true,
+    "target": "es2017"
+  }
+}
