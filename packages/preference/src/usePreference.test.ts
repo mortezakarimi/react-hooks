@@ -21,7 +21,6 @@ jest.mock('@capacitor/preferences', (): { Preferences: PreferencesMockType } => 
       data: {} as any,
       __init(d: any) {
         this.data = d;
-        console.log(this.data);
       },
       async get({ key }: { key: string }) {
         return { value: this.data[key] };
