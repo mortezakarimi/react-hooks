@@ -23,7 +23,6 @@ export const availableFeatures = {
   usePreference: isFeatureAvailable('Preferences', 'usePreferences'),
 };
 
-
 export function usePreference(): PreferenceResult {
   if (!availableFeatures.usePreference) {
     return {
