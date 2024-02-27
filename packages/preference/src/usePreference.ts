@@ -75,23 +75,11 @@ export function usePreferenceItem<T>(key: string, initialValue?: T): PreferenceI
       try {
         const result = await Preferences.get({ key });
         if (result.value == undefined && initialValueMemo != undefined) {
-          result.value =
-            typeof initialValueMemo === 'string'
-              ? initialValueMemo
-              : JSON.stringify(initialValueMemo);
+          result.value = JSON.stringify(initialValueMemo);
           setValue(initialValueMemo as any);
         } else {
-          if (result.value) {
-            let value: any;
-            try {
-              value = JSON.parse(result.value);
-            } catch (e) {
-              if (e instanceof SyntaxError) {
-                console.log(e);
-              }
-              value = result.value;
-            }
-            setStoredValue(value);
+          if (typeof result.value === 'string' && JSON.parse(result.value)) {
+            setStoredValue(JSON.parse(result.value));
           } else {
             setStoredValue(undefined);
           }
@@ -104,7 +92,7 @@ export function usePreferenceItem<T>(key: string, initialValue?: T): PreferenceI
     loadValue();
   }, [Preferences, setStoredValue, initialValueMemo, key]);
 
-  const setValue = async (value: T) => {
+  const setValue = useCallback(async (value: T) => {
     try {
       setStoredValue(value);
       await Preferences.set({
@@ -114,7 +102,7 @@ export function usePreferenceItem<T>(key: string, initialValue?: T): PreferenceI
     } catch (e) {
       console.error(e);
     }
-  };
+  }, []);
 
   return [storedValue, setValue, true];
 }

@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { Preferences } from '@capacitor/preferences';
+import { Preferences, type PreferencesPlugin } from '@capacitor/preferences';
 import { act, renderHook } from '@testing-library/react';
 import { usePreference, usePreferenceItem } from './usePreference';
 
@@ -14,28 +14,37 @@ jest.mock('@capacitor/core', () => {
     },
   };
 });
-jest.mock('@capacitor/preferences', () => {
-  let data: any = {};
+type PreferencesMockType = PreferencesPlugin & { data: any; __init: (d: any) => void };
+jest.mock('@capacitor/preferences', (): { Preferences: PreferencesMockType } => {
   return {
     Preferences: {
-      __init: (d: any) => {
-        data = d;
+      data: {} as any,
+      __init(d: any) {
+        this.data = d;
+        console.log(this.data);
       },
-      get: async ({ key }: { key: string }) => {
-        return { value: data[key] };
+      async get({ key }: { key: string }) {
+        return { value: this.data[key] };
       },
-      set: async ({ key, value }: { key: string; value: string }): Promise<void> => {
-        data[key] = value;
+      async set({ key, value }: { key: string; value: string }) {
+        this.data[key] = value;
       },
-      remove: async ({ key }: { key: string }) => {
-        delete data[key];
+      async remove({ key }: { key: string }) {
+        delete this.data[key];
       },
-      keys: async () => {
-        return Object.keys(data);
+      async keys() {
+        return { keys: Object.keys(this.data) };
       },
-      clear: async () => {
-        data = {};
+      async clear() {
+        this.data = {};
       },
+      async migrate() {
+        return { migrated: [], existing: [] };
+      },
+      async configure() {
+        return;
+      },
+      async removeOld() {},
     },
   };
 });
@@ -65,7 +74,7 @@ it('Gets and sets preference values', async () => {
 
     await set('name', 'Max');
     const knownKeys = await getKeys();
-    expect(knownKeys).toStrictEqual(['name']);
+    expect(knownKeys.keys).toStrictEqual(['name']);
 
     await clear();
     name = await get('name');
@@ -131,7 +140,7 @@ it('Manages individual item with stored value', async () => {
 
   const storageMock = Preferences as any;
   await act(async () => {
-    storageMock.__init({ name: 'Matilda' });
+    storageMock.__init({ name: JSON.stringify('Matilda') });
   });
 
   await act(async () => {
