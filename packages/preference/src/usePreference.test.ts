@@ -129,8 +129,16 @@ it('Manages object individual item', async () => {
   await act(async () => {
     const result = r.result.current;
 
-    const [value] = result;
+    const [value, setValue] = result;
     expect(value).toBeNull();
+    setValue(undefined);
+  });
+
+  await act(async () => {
+    const result = r.result.current;
+
+    const [value] = result;
+    expect(value).toBeUndefined();
   });
 });
 
