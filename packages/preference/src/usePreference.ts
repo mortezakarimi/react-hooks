@@ -1,7 +1,7 @@
 // Inspired by useLocalStorage from https://usehooks.com/useLocalStorage/
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AvailableResult, notAvailable } from './util/models';
-import { isFeatureAvailable, featureNotAvailableError } from './util/feature-check';
+import { featureNotAvailableError, isFeatureAvailable } from './util/feature-check';
 import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 
@@ -15,7 +15,6 @@ interface PreferenceResult extends AvailableResult {
 
 type PreferenceItemResult<T> = [T | undefined, (value: T) => Promise<void>, boolean];
 
-console.log(Capacitor.getPlatform());
 if (!Capacitor.isPluginAvailable('Preferences')) {
   console.warn('The @capacitor/Preferences plugin was not found, did you forget to install it?');
 }
@@ -67,6 +66,7 @@ export function usePreferenceItem<T>(key: string, initialValue?: T): PreferenceI
   if (!availableFeatures.usePreference) {
     return [undefined, featureNotAvailableError, false];
   }
+  const initialValueMemo = useMemo(() => initialValue, []);
 
   const [storedValue, setStoredValue] = useState<T>();
 
@@ -74,32 +74,42 @@ export function usePreferenceItem<T>(key: string, initialValue?: T): PreferenceI
     async function loadValue() {
       try {
         const result = await Preferences.get({ key });
-        if (result.value == undefined && initialValue != undefined) {
+        if (result.value == undefined && initialValueMemo != undefined) {
           result.value =
-            typeof initialValue === 'string' ? initialValue : JSON.stringify(initialValue);
-          setValue(result.value as any);
+            typeof initialValueMemo === 'string'
+              ? initialValueMemo
+              : JSON.stringify(initialValueMemo);
+          setValue(initialValueMemo as any);
         } else {
           if (result.value) {
-            setStoredValue(
-              typeof result.value === 'string' ? result.value : JSON.parse(result.value)
-            );
+            let value: any;
+            try {
+              value = JSON.parse(result.value);
+            } catch (e) {
+              if (e instanceof SyntaxError) {
+                console.log(e);
+              }
+              value = result.value;
+            }
+            setStoredValue(value);
           } else {
             setStoredValue(undefined);
           }
         }
       } catch (e) {
-        return initialValue;
+        return initialValueMemo;
       }
     }
+
     loadValue();
-  }, [Preferences, setStoredValue, initialValue, key]);
+  }, [Preferences, setStoredValue, initialValueMemo, key]);
 
   const setValue = async (value: T) => {
     try {
       setStoredValue(value);
       await Preferences.set({
         key,
-        value: typeof value === 'string' ? value : JSON.stringify(value),
+        value: JSON.stringify(value),
       });
     } catch (e) {
       console.error(e);

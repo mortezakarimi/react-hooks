@@ -99,6 +99,32 @@ it('Manages individual item', async () => {
     expect(value).toBe('Frank');
   });
 });
+it('Manages object individual item', async () => {
+  let r: any;
+  await act(async () => {
+    r = renderHook(() => usePreferenceItem('user', { name: 'John', family: 'Doe' }));
+  });
+
+  await act(async () => {
+    return;
+  });
+
+  await act(async () => {
+    const result = r.result.current;
+
+    const [value, setValue] = result;
+    expect(value).toStrictEqual({ name: 'John', family: 'Doe' });
+
+    setValue(null);
+  });
+
+  await act(async () => {
+    const result = r.result.current;
+
+    const [value] = result;
+    expect(value).toBeNull();
+  });
+});
 
 it('Manages individual item with stored value', async () => {
   let r: any;
