@@ -47,3 +47,6 @@ jobs:
       - run: npm ci
       - run: npx lerna run build
       - run: npm run lerna:publish || true
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
